@@ -109,14 +109,12 @@ const MAX_STAT = 6;
     const url = LINKS[a.dataset.link];
     if (url) a.href = url;
   });
-  const storeKeys = ["seeker", "apple", "steam", "google"];
-  $$(".store").forEach((a, i) => {
-    const url = STORES[storeKeys[i]];
+  $$("[data-store]").forEach((a) => {
+    const url = STORES[a.dataset.store];
     if (url) {
       a.href = url;
       a.target = "_blank";
       a.rel = "noopener";
-      a.removeAttribute("data-soon");
       a.setAttribute("aria-label", a.getAttribute("aria-label").replace(" (coming soon)", ""));
     }
   });
@@ -156,28 +154,86 @@ const MAX_STAT = 6;
     fillMedia($("#story-video"), isFile ? { video: STORY_VIDEO } : { embed: STORY_VIDEO }, "Rogue Pirates — Our Story");
   }
 
-  // Promo video: poster + big play button until the first play, then native controls.
+  /* ---- promo video: themed controls ---- */
+  const player = $(".player");
   const promo = $("#promo");
-  const playBtn = $(".play-btn");
-  if (promo && playBtn) {
-    const start = () => {
-      promo.controls = true;
-      playBtn.hidden = true;
-      const p = promo.play();
-      if (p && p.catch) p.catch(() => { playBtn.hidden = false; promo.controls = false; });
+  if (player && promo && !STORY_VIDEO) {
+    const playBtn = $(".play-btn", player);
+    const bar = $(".player__bar", player);
+    const seek = $(".player__seek", player);
+    const time = $(".player__time", player);
+    const fmt = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
+    let idleTimer;
+
+    const wake = () => {
+      player.classList.remove("is-idle");
+      clearTimeout(idleTimer);
+      if (!promo.paused) idleTimer = setTimeout(() => player.classList.add("is-idle"), 2200);
     };
-    playBtn.addEventListener("click", start);
-    promo.addEventListener("play", () => { playBtn.hidden = true; promo.controls = true; });
-    promo.addEventListener("ended", () => { playBtn.hidden = false; });
+    const toggle = () => {
+      if (promo.paused || promo.ended) {
+        const p = promo.play();
+        if (p && p.catch) p.catch(() => {});
+      } else {
+        promo.pause();
+      }
+    };
+
+    playBtn.addEventListener("click", toggle);
+    promo.addEventListener("click", toggle);
+    $(".pbtn--toggle", player).addEventListener("click", toggle);
+    $(".pbtn--mute", player).addEventListener("click", () => { promo.muted = !promo.muted; });
+    $(".pbtn--fs", player).addEventListener("click", () => {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (player.requestFullscreen) player.requestFullscreen().catch(() => {});
+      else if (promo.webkitEnterFullscreen) promo.webkitEnterFullscreen(); // iPhone
+    });
+
+    promo.addEventListener("play", () => {
+      playBtn.hidden = true;
+      bar.hidden = false;
+      player.classList.remove("is-paused");
+      $(".pbtn--toggle", player).setAttribute("aria-label", "Pause");
+      wake();
+    });
+    promo.addEventListener("pause", () => {
+      player.classList.add("is-paused");
+      $(".pbtn--toggle", player).setAttribute("aria-label", "Play");
+      wake();
+    });
+    promo.addEventListener("ended", () => {
+      playBtn.hidden = false;
+      bar.hidden = true;
+    });
+    promo.addEventListener("volumechange", () => {
+      player.classList.toggle("is-muted", promo.muted);
+      $(".pbtn--mute", player).setAttribute("aria-label", promo.muted ? "Unmute" : "Mute");
+    });
+    promo.addEventListener("timeupdate", () => {
+      const d = promo.duration || 0;
+      const pct = d ? (promo.currentTime / d) * 100 : 0;
+      seek.value = String(Math.round(pct * 10));
+      seek.style.setProperty("--p", `${pct}%`);
+      time.textContent = fmt(promo.currentTime);
+    });
+    seek.addEventListener("input", () => {
+      if (promo.duration) promo.currentTime = (seek.value / 1000) * promo.duration;
+      seek.style.setProperty("--p", `${seek.value / 10}%`);
+    });
+    ["pointermove", "pointerdown", "focusin"].forEach((ev) => player.addEventListener(ev, wake));
+    player.addEventListener("pointerleave", () => { if (!promo.paused) player.classList.add("is-idle"); });
+
     // pause when scrolled out of view
     if ("IntersectionObserver" in window) {
-      new IntersectionObserver(([en]) => { if (!en.isIntersecting && !promo.paused) promo.pause(); }, { threshold: 0.2 }).observe(promo);
+      new IntersectionObserver(([en]) => { if (!en.isIntersecting && !promo.paused) promo.pause(); }, { threshold: 0.25 }).observe(player);
     }
   }
 
-  /* ---- gameplay carousel ---- */
+  /* ---- gameplay carousel: one slide at a time ---- */
   const track = $("#gameplay-track");
+  const dotsWrap = $("#gameplay-dots");
   const items = GAMEPLAY_MEDIA.length ? GAMEPLAY_MEDIA : Array.from({ length: PLACEHOLDER_SLIDES }, () => null);
+  const dots = [];
   items.forEach((item, i) => {
     const li = document.createElement("li");
     li.className = "slide";
@@ -186,32 +242,47 @@ const MAX_STAT = 6;
     li.setAttribute("aria-label", `${i + 1} of ${items.length}`);
     const slot = document.createElement("div");
     slot.className = "media-slot";
-    slot.innerHTML = '<span class="media-slot__hint">Gameplay coming soon</span>';
+    slot.innerHTML = `<span class="media-slot__hint"><b>${String(i + 1).padStart(2, "0")}</b>Gameplay footage coming soon</span>`;
     fillMedia(slot, item, `Gameplay ${i + 1}`);
     li.append(slot);
     track.append(li);
+
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.setAttribute("aria-label", `Show slide ${i + 1}`);
+    dot.addEventListener("click", () => go(i));
+    dotsWrap.append(dot);
+    dots.push(dot);
   });
 
-  function step(dir) {
-    const slide = track.querySelector(".slide");
-    if (!slide) return;
-    const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
-    const w = slide.getBoundingClientRect().width + gap;
-    const max = track.scrollWidth - track.clientWidth - 2;
-    let target = track.scrollLeft + dir * w;
-    if (dir > 0 && track.scrollLeft >= max) target = 0;           // wrap to start
-    else if (dir < 0 && track.scrollLeft <= 2) target = max + 2;  // wrap to end
-    track.scrollTo({ left: target, behavior: reduceMotion ? "auto" : "smooth" });
+  let slideIndex = 0;
+  function markDot() {
+    dots.forEach((d, i) => d.setAttribute("aria-current", String(i === slideIndex)));
   }
-  $(".carousel__arrow--prev").addEventListener("click", () => step(-1));
-  $(".carousel__arrow--next").addEventListener("click", () => step(1));
-  $(".carousel__viewport").addEventListener("keydown", (e) => {
-    if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
-    if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+  function go(i, smooth = !reduceMotion) {
+    slideIndex = (i + items.length) % items.length;
+    track.scrollTo({ left: slideIndex * track.clientWidth, behavior: smooth ? "smooth" : "auto" });
+    markDot();
+  }
+  let scrollTimer;
+  track.addEventListener("scroll", () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const i = Math.round(track.scrollLeft / track.clientWidth);
+      if (i !== slideIndex) { slideIndex = i; markDot(); }
+    }, 80);
+  }, { passive: true });
+  window.addEventListener("resize", () => go(slideIndex, false));
+  $(".carousel__arrow--prev").addEventListener("click", () => go(slideIndex - 1));
+  $(".carousel__arrow--next").addEventListener("click", () => go(slideIndex + 1));
+  track.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(slideIndex - 1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); go(slideIndex + 1); }
   });
+  markDot();
 
   /* ---- captains ---- */
-  const panel = $(".cap-panel");
+  const panel = $("#captains");
   const list = $(".cap-list");
   const details = $(".cap-details");
   const charImg = $(".cap-char");
@@ -383,6 +454,27 @@ const MAX_STAT = 6;
   if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 4000 });
   else setTimeout(warm, 2500);
 
+  /* ---- top bar + section dots ---- */
+  const nav = $("#nav");
+  const onScroll = () => nav.classList.toggle("is-scrolled", window.scrollY > 40);
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+  if ("IntersectionObserver" in window) {
+    const navIO = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        const id = en.target.id;
+        $$("[data-nav]").forEach((a) => {
+          const on = a.dataset.nav === id;
+          a.classList.toggle("is-active", on);
+          if (on) a.setAttribute("aria-current", "true");
+          else a.removeAttribute("aria-current");
+        });
+      });
+    }, { threshold: 0.55 });
+    $$(".sec").forEach((sec) => navIO.observe(sec));
+  }
+
   /* ---- scroll reveal ---- */
   const reveals = $$(".reveal");
   if ("IntersectionObserver" in window && !reduceMotion) {
@@ -393,7 +485,7 @@ const MAX_STAT = 6;
           io.unobserve(en.target);
         }
       });
-    }, { rootMargin: "0px 0px -4% 0px", threshold: 0.05 });
+    }, { threshold: 0.15 });
     reveals.forEach((el) => io.observe(el));
   } else {
     reveals.forEach((el) => el.classList.add("is-visible"));

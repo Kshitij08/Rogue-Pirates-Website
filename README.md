@@ -2,14 +2,17 @@
 
 A static landing page (HTML, CSS and vanilla JS) with no build step and no dependencies.
 
+The page is five full-screen sections (Hero, Our Story, Captains, Gameplay, Launch) that snap into place as you scroll. On desktop each section is scaled to fit the screen. Phones and portrait tablets get a single-column layout.
+
 ```
 index.html              page markup
-assets/css/style.css    all styles (desktop matches the design 1:1, plus a mobile layout)
-assets/js/main.js       content config + captain picker, carousel, toasts
+assets/css/style.css    all styles (full-screen desktop layout + single-column mobile layout)
+assets/js/main.js       content config + captain picker, carousel, video player, nav
 assets/img/             optimised WebP images (generated, see below)
 assets/icons/           favicons
 assets/og-image.jpg     social share preview
-tools/build_assets.py   regenerates assets/img from /References
+assets/video/           promo video (1080p + 720p for phones) and poster
+tools/build_assets.py   regenerates assets/img from /References (References/ is git-ignored)
 vercel.json             cache + security headers
 ```
 

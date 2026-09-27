@@ -1,4 +1,20 @@
+# OS / editor junk
 .DS_Store
 Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Python cache (tools/build_assets.py)
 __pycache__/
+*.pyc
+
+# Vercel CLI
 .vercel
+
+# Local Claude Code preview config
+.claude/
+
+# Raw design exports (~117 MB). Only needed to regenerate /assets via tools/build_assets.py —
+# keep them locally or in shared storage rather than in the site repo.
+References/

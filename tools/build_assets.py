@@ -64,23 +64,13 @@ def backgrounds():
     print("backgrounds")
     bg = Image.open(find(WEB, "chatgpt")).convert("RGB")
     assert bg.size == (5678, 15141), bg.size
-    # Section slices (design y ranges). Heights must match the CSS section heights.
-    sections = {
-        "hero": (0, 3150),
-        "story": (3150, 6800),
-        "captains": (6800, 11000),
-        "gameplay": (11000, 12930),
-        "launch": (12930, 15141),
-    }
-    for name, (y0, y1) in sections.items():
-        crop = bg.crop((0, y0, 5678, y1))
-        for w in (1600, 2560, 3840):
-            save(crop, f"bg/{name}-{w}.webp", width=w, quality=78)
+    # Desktop: the whole painting as one continuous page background (sections snap on top of it).
+    for w in (1600, 2400):
+        save(bg, f"bg/full-{w}.webp", width=w, quality=74)
     # Mobile: one continuous vertical strip from the centre of the painting.
     strip = bg.crop((1700, 0, 3978, 15141))
     save(strip, "bg/mobile-900.webp", width=900, quality=74)
     save(strip, "bg/mobile-1300.webp", width=1300, quality=72)
-    save(strip, "bg/mobile-1800.webp", width=1800, quality=68)
 
 
 def hero():
