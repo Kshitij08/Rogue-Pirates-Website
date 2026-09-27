@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Rogue Pirates</title>
+  <meta name="description" content="Rogue Pirates — choose your captain, command your ship and rule the high seas. Launching soon on Solana Seeker, the App Store, Steam and Google Play.">
+  <meta name="theme-color" content="#0a3d7a">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Rogue Pirates">
+  <meta property="og:description" content="Choose your captain, command your ship and rule the high seas. Launching soon.">
+  <meta property="og:image" content="/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Rogue Pirates">
+  <meta name="twitter:description" content="Choose your captain, command your ship and rule the high seas. Launching soon.">
+  <meta name="twitter:image" content="/assets/og-image.jpg">
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="/assets/icons/favicon-64.png">
+  <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
+
+  <!-- The whole layout is drawn in "design units" (1rem = 100px of the 5678px-wide design).
+       Size the root font before first paint, excluding the scrollbar so nothing is clipped. -->
+  <script>
+    (function () {
+      var d = document.documentElement;
+      d.classList.add("js");
+      function fit() { d.style.setProperty("--sbw", (window.innerWidth - d.clientWidth) + "px"); }
+      fit();
+      window.addEventListener("resize", fit);
+      document.addEventListener("DOMContentLoaded", fit);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <link rel="preload" as="image" href="/assets/img/ship.webp" fetchpriority="high">
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <a class="skip-link" href="#story">Skip to content</a>
+
+  <main class="page">
+
+    <!-- ============ HERO ============ -->
+    <section class="sec hero" id="top" aria-label="Rogue Pirates">
+      <div class="hero-art" aria-hidden="true">
+        <img class="hero-ship" src="/assets/img/ship.webp"
+             srcset="/assets/img/ship-1100.webp 1100w, /assets/img/ship.webp 2200w"
+             sizes="(max-width: 899px) 120vw, 56vw" width="2200" height="2035" alt="" fetchpriority="high">
+        <img class="hero-octo hero-octo--l" src="/assets/img/octo-left.webp" width="649" height="1475" alt="">
+        <img class="hero-octo hero-octo--r" src="/assets/img/octo-right.webp" width="1751" height="1477" alt="">
+      </div>
+      <h1 class="hero-logo">
+        <img src="/assets/img/logo.webp"
+             srcset="/assets/img/logo-800.webp 800w, /assets/img/logo.webp 1600w"
+             sizes="(max-width: 899px) 80vw, 39vw" width="1600" height="808" alt="Rogue Pirates">
+      </h1>
+    </section>
+
+    <!-- ============ OUR STORY ============ -->
+    <section class="sec story" id="story" aria-labelledby="story-title">
+      <h2 class="banner banner--scroll reveal" id="story-title" style="--tw: 9.56rem">
+        <img src="/assets/img/title-our-story.webp" width="700" height="135" alt="Our Story">
+      </h2>
+      <div class="story-scroll reveal">
+        <img class="story-scroll__paper" src="/assets/img/story-scroll.webp" width="2600" height="1451" alt="" loading="lazy">
+        <div class="story-video media-slot" id="story-video">
+          <video id="promo" preload="none" playsinline poster="/assets/video/promo-poster.jpg" aria-label="Rogue Pirates promo video">
+            <source src="/assets/video/promo-720.mp4" type="video/mp4" media="(max-width: 899px)">
+            <source src="/assets/video/promo-1080.mp4" type="video/mp4">
+          </video>
+          <button class="play-btn" type="button" aria-label="Play the Rogue Pirates promo">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M38 28 L74 50 L38 72 Z"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CAPTAINS ============ -->
+    <section class="sec captains" id="captains" aria-labelledby="captains-title">
+      <h2 class="banner banner--plank reveal" id="captains-title" style="--tw: 8.47rem">
+        <img src="/assets/img/title-captains.webp" width="700" height="168" alt="Captains">
+      </h2>
+
+      <div class="cap-panel" data-captain="hank">
+        <div class="cap-glow" aria-hidden="true"></div>
+
+        <div class="cap-list" role="tablist" aria-label="Choose a captain" aria-orientation="vertical">
+          <!-- filled by main.js; Hank is rendered here so the section works without JS -->
+          <button class="cap-card is-active" role="tab" aria-selected="true" aria-controls="cap-details" data-key="hank">
+            <img src="/assets/img/captains/hank-portrait.webp" width="300" height="300" alt="Hank">
+          </button>
+        </div>
+
+        <div class="cap-figure" aria-hidden="true">
+          <img class="cap-char" src="/assets/img/captains/hank-character.webp" width="772" height="1400" alt="" loading="lazy" style="--h: 1041">
+        </div>
+
+        <div class="cap-details" id="cap-details" role="tabpanel" aria-live="polite">
+          <div class="cap-head">
+            <span class="cap-emblem" style="--emblem: url(/assets/img/captains/hank-emblem.webp)"></span>
+            <h3 class="cap-name">Hank</h3>
+          </div>
+          <ul class="cap-stats">
+            <li class="stat"><img class="stat__icon" src="/assets/img/captains/hank-cannon.webp" alt=""><span class="stat__label">Firepower</span><span class="stat__bar" data-value="4"></span></li>
+            <li class="stat"><img class="stat__icon" src="/assets/img/captains/hank-shield.webp" alt=""><span class="stat__label">Durability</span><span class="stat__bar" data-value="5"></span></li>
+            <li class="stat"><img class="stat__icon" src="/assets/img/captains/hank-ship.webp" alt=""><span class="stat__label">Speed</span><span class="stat__bar" data-value="3"></span></li>
+            <li class="stat"><img class="stat__icon" src="/assets/img/captains/hank-wheel.webp" alt=""><span class="stat__label">Handling</span><span class="stat__bar" data-value="3"></span></li>
+          </ul>
+          <div class="cap-ability">
+            <p class="cap-ability__kicker">Special ability</p>
+            <p class="cap-ability__name">Stand Your Ground</p>
+            <span class="cap-ability__icon cap-ability__icon--emblem" style="--emblem: url(/assets/img/captains/hank-emblem.webp)"></span>
+            <p class="cap-ability__desc">Gains Armor every level. Dodging is optional.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GAMEPLAY ============ -->
+    <section class="sec gameplay" id="gameplay" aria-labelledby="gameplay-title">
+      <h2 class="banner banner--plank reveal" id="gameplay-title" style="--tw: 9.68rem">
+        <img src="/assets/img/title-gameplay.webp" width="700" height="149" alt="Gameplay">
+      </h2>
+      <div class="carousel" aria-roledescription="carousel" aria-label="Gameplay">
+        <button class="carousel__arrow carousel__arrow--prev" type="button" aria-label="Previous">
+          <img src="/assets/img/arrow-left.webp" width="151" height="241" alt="">
+        </button>
+        <div class="carousel__viewport" tabindex="0">
+          <ul class="carousel__track" id="gameplay-track">
+            <!-- filled by main.js from GAMEPLAY_MEDIA -->
+          </ul>
+        </div>
+        <button class="carousel__arrow carousel__arrow--next" type="button" aria-label="Next">
+          <img src="/assets/img/arrow-right.webp" width="155" height="246" alt="">
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ LAUNCH / FOOTER ============ -->
+    <footer class="sec launch" id="launch">
+      <h2 class="banner banner--plank reveal" style="--tw: 11.72rem">
+        <img src="/assets/img/title-launching-soon-on.webp" width="700" height="77" alt="Launching soon on">
+      </h2>
+
+      <ul class="stores reveal">
+        <!-- Replace href="#" with the real store listing once live. -->
+        <li><a class="store store--seeker" href="#" data-soon aria-label="Solana Seeker (coming soon)"><img src="/assets/img/store-seeker.webp" width="640" height="214" alt="Seeker — Solana Mobile" loading="lazy"></a></li>
+        <li><a class="store store--apple" href="#" data-soon aria-label="Download on the App Store (coming soon)"><img src="/assets/img/store-apple.webp" width="640" height="186" alt="Download on the App Store" loading="lazy"></a></li>
+        <li><a class="store store--steam" href="#" data-soon aria-label="Steam (coming soon)"><img src="/assets/img/store-steam.webp" width="640" height="185" alt="Steam" loading="lazy"></a></li>
+        <li><a class="store store--google" href="#" data-soon aria-label="Get it on Google Play (coming soon)"><img src="/assets/img/store-google.webp" width="640" height="190" alt="Get it on Google Play" loading="lazy"></a></li>
+      </ul>
+
+      <!-- Join us → your Discord invite -->
+      <a class="join reveal" href="#" data-link="discord" target="_blank" rel="noopener">
+        <img src="/assets/img/title-join-us.webp" width="522" height="149" alt="Join us">
+      </a>
+
+      <ul class="socials reveal">
+        <li><a class="social" href="#" data-link="x" target="_blank" rel="noopener" aria-label="Rogue Pirates on X"><img src="/assets/img/social-x.webp" width="240" height="240" alt="" loading="lazy"></a></li>
+        <li><a class="social" href="#" data-link="instagram" target="_blank" rel="noopener" aria-label="Rogue Pirates on Instagram"><img src="/assets/img/social-instagram.webp" width="240" height="239" alt="" loading="lazy"></a></li>
+        <li><a class="social" href="#" data-link="discord" target="_blank" rel="noopener" aria-label="Rogue Pirates on Discord"><img src="/assets/img/social-discord.webp" width="240" height="241" alt="" loading="lazy"></a></li>
+      </ul>
+
+      <p class="copyright">© <span id="year">2026</span> Rogue Pirates. All rights reserved.</p>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/assets/js/main.js" defer></script>
+</body>
+</html>
