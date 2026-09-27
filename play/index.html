@@ -1,142 +1,379 @@
 <!doctype html>
 <!--
-  Rogue Pirates — browser version (placeholder)
+  Rogue Pirates — browser version (Unity WebGL player)
   ------------------------------------------------------------------------
-  When the Unity WebGL build is ready, replace this folder's contents with
-  the build output (index.html, Build/, TemplateData/), then set
-  PLAY.live = true in /assets/js/main.js.
-  vercel.json already sends the right headers for Brotli/Gzip-compressed
-  Unity builds (Build/*.br, Build/*.gz).
+  To ship a new Unity build: put the new files in the build folder and update
+  BUILD below (folder URL + file name). The build folder can live on this site
+  (/play/Build) or on a CDN / object storage — BUILD.url can be a full https:// URL.
+  The page replaces Unity's default template; nothing from TemplateData/ is needed.
 -->
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Play Rogue Pirates — Coming soon</title>
-  <meta name="description" content="Rogue Pirates is coming to your browser. Join the crew on Discord to hear the moment it launches.">
-  <meta name="theme-color" content="#0a3d7a">
+  <title>Play Rogue Pirates in your browser</title>
+  <meta name="description" content="Play the Rogue Pirates demo right in your browser. Pick a captain and take to the open sea.">
+  <meta name="theme-color" content="#04244f">
   <meta property="og:title" content="Play Rogue Pirates in your browser">
-  <meta property="og:description" content="The browser version is almost ready to set sail.">
+  <meta property="og:description" content="Pick a captain and take to the open sea — no install needed.">
   <meta property="og:image" content="/assets/og-image.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/icons/favicon-32.png">
   <link rel="apple-touch-icon" href="/assets/icons/apple-touch-icon.png">
   <link rel="preload" href="/assets/fonts/cinzel-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/assets/fonts/alegreya-latin.woff2" as="font" type="font/woff2" crossorigin>
   <style>
-    @font-face {
-      font-family: "Cinzel";
-      font-style: normal;
-      font-weight: 400 700;
-      font-display: swap;
-      src: url("/assets/fonts/cinzel-latin.woff2") format("woff2");
+    @font-face { font-family: "Cinzel"; font-weight: 400 700; font-display: swap; src: url("/assets/fonts/cinzel-latin.woff2") format("woff2"); }
+    @font-face { font-family: "Alegreya"; font-weight: 400 500; font-display: swap; src: url("/assets/fonts/alegreya-latin.woff2") format("woff2"); }
+    :root {
+      --gold: #ffc53d; --gold-hi: #ffe07a; --brown: #5b2a07; --ink: #eef4ea;
+      --bar-h: 58px;
+      color-scheme: dark;
     }
-    /* Alegreya for body copy: Cinzel's lowercase are small caps, which is hard to read in sentences */
-    @font-face {
-      font-family: "Alegreya";
-      font-style: normal;
-      font-weight: 400 500;
-      font-display: swap;
-      src: url("/assets/fonts/alegreya-latin.woff2") format("woff2");
-    }
-    :root { --gold: #ffc53d; --gold-hi: #ffe07a; --brown: #5b2a07; --ink: #eef4ea; color-scheme: dark; }
     * { box-sizing: border-box; }
-    html, body { height: 100%; }
+    html, body { height: 100%; margin: 0; }
     body {
-      margin: 0;
+      display: flex;
+      flex-direction: column;
       min-height: 100vh;
       min-height: 100svh;
-      display: grid;
-      place-items: center;
-      padding: 24px 16px;
-      font-family: "Cinzel", "Times New Roman", serif;
-      color: var(--ink);
       background: #04244f url("/assets/img/bg/full-1600.webp") center top / cover no-repeat;
+      color: var(--ink);
+      font-family: "Cinzel", "Times New Roman", serif;
+      overflow: hidden;
     }
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      /* calm the bright clouds and foam so the text has something steady to sit on */
-      background:
-        radial-gradient(ellipse 70% 60% at 50% 58%, rgb(3 14 32 / .55), transparent 75%),
-        linear-gradient(rgb(3 14 32 / .35), rgb(3 14 32 / .6));
+      background: linear-gradient(rgb(3 14 32 / .55), rgb(3 14 32 / .8));
       pointer-events: none;
     }
-    main {
+
+    /* ---------- top bar ---------- */
+    .bar {
       position: relative;
-      width: min(560px, 100%);
-      display: grid;
-      justify-items: center;
-      gap: 18px;
-      text-align: center;
+      z-index: 2;
+      flex: none;
+      height: var(--bar-h);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 18px;
+      background: rgb(3 18 42 / .6);
+      -webkit-backdrop-filter: blur(10px);
+              backdrop-filter: blur(10px);
+      box-shadow: 0 1px 0 rgb(255 255 255 / .07);
     }
-    .panel {
-      display: grid;
-      justify-items: center;
-      gap: 18px;
-      width: 100%;
-      padding: 30px clamp(20px, 5vw, 40px) 32px;
-      border-radius: 22px;
-      background: rgb(4 18 40 / .62);
-      -webkit-backdrop-filter: blur(12px) saturate(1.1);
-              backdrop-filter: blur(12px) saturate(1.1);
-      box-shadow: inset 0 0 0 1px rgb(255 214 110 / .18), 0 20px 50px rgb(0 0 0 / .35);
+    .bar__brand img { display: block; height: 36px; width: auto; }
+    .bar__title {
+      font: 600 12px/1 "Cinzel", serif;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: rgb(255 255 255 / .7);
     }
-    .logo { width: min(340px, 78vw); height: auto; filter: drop-shadow(0 8px 20px rgb(0 0 0 / .35)); }
-    .badge {
-      padding: 7px 14px;
+    .bar__spacer { flex: 1; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 34px;
+      padding: 0 14px;
+      border: 0;
       border-radius: 999px;
-      box-shadow: inset 0 0 0 1px rgb(255 214 110 / .65);
-      background: rgb(4 18 40 / .5);
+      background: rgb(255 255 255 / .06);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / .28);
+      color: #fff;
       font: 700 11px/1 "Cinzel", serif;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color .2s, box-shadow .2s, color .2s;
+    }
+    .chip:hover { background: rgb(255 255 255 / .12); box-shadow: inset 0 0 0 1px rgb(255 214 110 / .7); color: var(--gold-hi); }
+    .chip svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .chip[hidden] { display: none; }
+
+    /* ---------- game area ---------- */
+    .stage {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      min-height: 0;
+    }
+    .frame {
+      position: relative;
+      width: min(100%, calc((100vh - var(--bar-h) - 32px) * 16 / 9));
+      width: min(100%, calc((100svh - var(--bar-h) - 32px) * 16 / 9));
+      aspect-ratio: 16 / 9;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #020b18;
+      box-shadow: 0 20px 60px rgb(0 0 0 / .5), 0 0 0 1px rgb(255 214 110 / .22);
+    }
+    #unity-canvas { display: block; width: 100%; height: 100%; background: #020b18; outline: none; }
+
+    /* ---------- overlays (start / loading / error) ---------- */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse at 50% 45%, rgb(4 18 40 / .55), rgb(2 10 24 / .92)),
+        url("/assets/img/gameplay/01-800.webp") center / cover;
+      transition: opacity .5s ease;
+    }
+    .overlay[hidden] { display: none; }
+    .overlay.is-fading { opacity: 0; pointer-events: none; }
+    .panel { display: grid; justify-items: center; gap: 14px; max-width: 440px; }
+    .panel h1, .panel h2 { margin: 0; font: 600 clamp(22px, 3.2vw, 32px)/1.15 "Cinzel", serif; color: #fff; text-wrap: balance; }
+    .panel p { margin: 0; font: 400 clamp(15px, 1.6vw, 17px)/1.55 "Alegreya", Georgia, serif; color: rgb(255 255 255 / .88); text-wrap: pretty; }
+    .panel .fine { font-size: 14px; color: rgb(255 255 255 / .6); }
+    .badge {
+      padding: 6px 12px;
+      border-radius: 999px;
+      box-shadow: inset 0 0 0 1px rgb(255 214 110 / .6);
+      background: rgb(4 18 40 / .5);
+      font: 700 10.5px/1 "Cinzel", serif;
       letter-spacing: .2em;
       text-transform: uppercase;
       color: var(--gold-hi);
     }
-    h1 { margin: 0; font: 600 clamp(24px, 4.6vw, 34px)/1.18 "Cinzel", serif; color: #fff; text-wrap: balance; }
-    p {
-      margin: 0;
-      max-width: 430px;
-      font: 400 clamp(17px, 2.4vw, 19px)/1.6 "Alegreya", Georgia, serif;
-      color: rgb(255 255 255 / .92);
-      text-wrap: pretty;
-    }
-    .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
     .btn {
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      height: 46px;
-      padding: 0 22px;
+      height: 50px;
+      margin-top: 6px;
+      padding: 0 28px 0 22px;
+      border: 0;
       border-radius: 999px;
-      font: 700 13px/1 "Cinzel", serif;
-      letter-spacing: .12em;
+      background: linear-gradient(180deg, var(--gold-hi), #f5a623);
+      color: var(--brown);
+      font: 700 14px/1 "Cinzel", serif;
+      letter-spacing: .14em;
       text-transform: uppercase;
-      text-decoration: none;
-      transition: transform .2s, filter .2s, background-color .2s;
+      cursor: pointer;
+      box-shadow: inset 0 -2px 0 rgb(0 0 0 / .15), 0 8px 22px rgb(0 0 0 / .35);
+      transition: transform .2s, filter .2s;
     }
-    .btn:hover { transform: translateY(-1px); }
-    .btn--gold { background: linear-gradient(180deg, var(--gold-hi), #f5a623); color: var(--brown); box-shadow: inset 0 -2px 0 rgb(0 0 0 / .15), 0 6px 18px rgb(0 0 0 / .3); }
-    .btn--gold img { width: 26px; height: 26px; border-radius: 50%; margin-left: -8px; }
-    .btn--ghost { color: #fff; box-shadow: inset 0 0 0 1px rgb(255 255 255 / .45); background: rgb(4 18 40 / .4); }
-    .btn--ghost:hover { background: rgb(4 18 40 / .65); }
-    a:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+    .btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.06); }
+    .btn:active { transform: scale(.97); }
+    .notice {
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: rgb(255 197 61 / .12);
+      box-shadow: inset 0 0 0 1px rgb(255 197 61 / .35);
+      font: 400 15px/1.45 "Alegreya", Georgia, serif;
+      color: #ffe9b5;
+    }
+    .notice[hidden] { display: none; }
+
+    .progress { width: min(360px, 80%); height: 12px; border-radius: 999px; background: rgb(255 255 255 / .12); box-shadow: inset 0 0 0 1px rgb(255 214 110 / .25); overflow: hidden; }
+    .progress__fill {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #f5a623, var(--gold-hi));
+      box-shadow: 0 0 12px rgb(255 197 61 / .6);
+      transition: width .3s ease;
+    }
+    .progress__label { font: 600 13px/1 "Cinzel", serif; letter-spacing: .12em; color: rgb(255 255 255 / .75); font-variant-numeric: tabular-nums; }
+    .wheel { width: 54px; height: 54px; animation: spin 6s linear infinite; opacity: .9; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* ---------- phones: the game takes the whole screen under the bar ---------- */
+    @media (max-width: 700px), (max-height: 500px) {
+      :root { --bar-h: 50px; }
+      .bar { padding: 0 10px; gap: 8px; }
+      .bar__title { display: none; }
+      .bar__brand img { height: 30px; }
+      .stage { padding: 0; }
+      .frame { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { .wheel { animation: none; } }
   </style>
 </head>
 <body>
-  <main>
-    <a href="/" aria-label="Rogue Pirates home"><img class="logo" src="/assets/img/logo-800.webp" width="800" height="404" alt="Rogue Pirates"></a>
-    <div class="panel">
-    <span class="badge">Coming soon</span>
-    <h1>The browser version is almost ready to set sail</h1>
-    <p>We're putting the finishing touches on Rogue Pirates for the web. Join the crew on Discord to hear the moment it launches.</p>
-    <div class="actions">
-      <a class="btn btn--gold" href="https://discord.gg/mU9ys5VQMY" target="_blank" rel="noopener">
-        <img src="/assets/img/social-discord.webp" width="240" height="241" alt="">Join the crew
-      </a>
-      <a class="btn btn--ghost" href="/">Back to the website</a>
-    </div>
+  <header class="bar">
+    <a class="bar__brand" href="/" aria-label="Rogue Pirates home"><img src="/assets/img/logo-800.webp" width="800" height="404" alt=""></a>
+    <span class="bar__title">Browser demo</span>
+    <span class="bar__spacer"></span>
+    <button class="chip" id="fullscreen" type="button" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
+      Full screen
+    </button>
+    <a class="chip" href="/">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to site
+    </a>
+  </header>
+
+  <main class="stage">
+    <div class="frame">
+      <canvas id="unity-canvas" tabindex="-1" aria-label="Rogue Pirates game"></canvas>
+
+      <!-- start -->
+      <div class="overlay" id="start">
+        <div class="panel">
+          <span class="badge">Browser demo</span>
+          <h1>Ready to set sail?</h1>
+          <p>Pick a captain and take to the open sea. The first load is a one-time download of about <strong id="size">170&nbsp;MB</strong>; your browser keeps it for next time.</p>
+          <p class="notice" id="mobile-notice" hidden>Heads up: this demo is built for computers. On a phone it's a big download and may not run smoothly.</p>
+          <button class="btn" id="start-btn" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+            <span id="start-label">Set sail</span>
+          </button>
+          <p class="fine">Works best in Chrome, Edge, Firefox or Safari on a desktop or laptop.</p>
+        </div>
+      </div>
+
+      <!-- loading -->
+      <div class="overlay" id="loading" hidden>
+        <div class="panel">
+          <svg class="wheel" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="#ffd35a" stroke-width="4" stroke-linecap="round">
+            <circle cx="32" cy="32" r="16"/><circle cx="32" cy="32" r="5" fill="#ffd35a" stroke="none"/>
+            <path d="M32 4v12M32 48v12M4 32h12M48 32h12M12.2 12.2l8.5 8.5M43.3 43.3l8.5 8.5M12.2 51.8l8.5-8.5M43.3 20.7l8.5-8.5"/>
+          </svg>
+          <h2 id="loading-title">Hoisting the sails…</h2>
+          <div class="progress" role="progressbar" aria-labelledby="loading-title" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+            <div class="progress__fill" id="progress-fill"></div>
+          </div>
+          <span class="progress__label" id="progress-label">0%</span>
+          <p class="fine" id="loading-hint">First visit? This can take a minute on slower connections.</p>
+        </div>
+      </div>
+
+      <!-- error -->
+      <div class="overlay" id="error" hidden>
+        <div class="panel">
+          <span class="badge">Man overboard</span>
+          <h2>The game couldn't load</h2>
+          <p id="error-text">Something went wrong while loading the game.</p>
+          <button class="btn" type="button" onclick="location.reload()">Try again</button>
+          <p class="fine">Still stuck? Let us know on <a href="https://discord.gg/mU9ys5VQMY" target="_blank" rel="noopener" style="color: var(--gold-hi)">Discord</a>.</p>
+        </div>
+      </div>
     </div>
   </main>
+
+  <script>
+    /* ------------------------------ BUILD ------------------------------
+       url:  folder that holds the Unity build files. The live site loads them from
+             Cloudflare R2 (uploaded with tools/upload-game-build.mjs); local testing
+             uses the git-ignored play/Build folder.
+       name: the build's file-name prefix (V4WebGLDemo.loader.js, …).
+       ext:  ".unityweb" when "Decompression Fallback" is on (it is for this build).
+       downloadMB: shown to players before they start.                        */
+    var GAME_CDN = "https://rogue-pirates.x2c.fun/Build";
+    // local testing uses play/Build; add ?cdn to test the live bucket from localhost
+    var useLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]cdn\b/.test(location.search);
+    var BUILD = {
+      url: useLocal ? "Build" : GAME_CDN,
+      name: "V4WebGLDemo",
+      ext: ".unityweb",
+      downloadMB: 170,
+      companyName: "DefaultCompany",   // keep in sync with Unity Player Settings —
+      productName: "Pirate Game",      // they decide where save data lives in the browser
+      productVersion: "0.1.0"
+    };
+
+    (function () {
+      var $ = function (id) { return document.getElementById(id); };
+      var canvas = $("unity-canvas");
+      var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+      $("size").textContent = BUILD.downloadMB + " MB";
+      if (isMobile) {
+        $("mobile-notice").hidden = false;
+        $("start-label").textContent = "Play anyway";
+      }
+
+      function show(id) {
+        ["start", "loading", "error"].forEach(function (o) { $(o).hidden = o !== id; });
+      }
+      function fail(message) {
+        var raw = String(message || "");
+        if (raw) console.error("[Rogue Pirates] load failed:", raw);
+        // Browsers hide the details of cross-origin failures ("Script error.", "Failed to fetch"),
+        // so give players something useful instead.
+        if (!raw || /script error|failed to fetch|networkerror|load failed|err_failed/i.test(raw)) {
+          raw = "We couldn't reach the game files. Check your connection and try again.";
+        }
+        $("error-text").textContent = raw;
+        show("error");
+      }
+
+      function hasWebGL() {
+        try {
+          var c = document.createElement("canvas");
+          return !!(c.getContext("webgl2") || c.getContext("webgl"));
+        } catch (e) { return false; }
+      }
+
+      function start() {
+        if (!hasWebGL()) {
+          fail("Your browser or device doesn't support WebGL, which the game needs. Try the latest Chrome, Edge, Firefox or Safari on a computer.");
+          return;
+        }
+        show("loading");
+        var base = BUILD.url.replace(/\/$/, "") + "/" + BUILD.name;
+        var config = {
+          dataUrl: base + ".data" + BUILD.ext,
+          frameworkUrl: base + ".framework.js" + BUILD.ext,
+          codeUrl: base + ".wasm" + BUILD.ext,
+          streamingAssetsUrl: "StreamingAssets",
+          companyName: BUILD.companyName,
+          productName: BUILD.productName,
+          productVersion: BUILD.productVersion,
+          showBanner: function (msg, type) { if (type === "error") fail(msg); else console.warn("[Unity]", msg); }
+        };
+        if (isMobile) config.devicePixelRatio = 1; // keeps phones from rendering at 3x
+
+        var script = document.createElement("script");
+        script.src = base + ".loader.js";
+        script.onerror = function () {
+          fail("We couldn't reach the game files. Check your connection and try again.");
+        };
+        script.onload = function () {
+          createUnityInstance(canvas, config, function (progress) {
+            var pct = Math.round(progress * 100);
+            $("progress-fill").style.width = pct + "%";
+            $("progress-label").textContent = pct + "%";
+            document.querySelector(".progress").setAttribute("aria-valuenow", String(pct));
+            if (progress >= 0.9) {
+              $("loading-title").textContent = "Readying the cannons…";
+              $("loading-hint").textContent = "Almost there.";
+            }
+          }).then(function (instance) {
+            var loading = $("loading");
+            loading.classList.add("is-fading");
+            setTimeout(function () { loading.hidden = true; }, 500);
+            canvas.focus();
+            var fs = $("fullscreen");
+            fs.hidden = false;
+            fs.onclick = function () { instance.SetFullscreen(1); };
+          }).catch(function (message) {
+            fail(String(message || "Something went wrong while starting the game."));
+          });
+        };
+        document.body.appendChild(script);
+      }
+
+      $("start-btn").addEventListener("click", start);
+      // deep link: /play/?autostart skips the start screen (desktop only)
+      if (!isMobile && /[?&]autostart\b/.test(location.search)) start();
+    })();
+  </script>
 </body>
 </html>

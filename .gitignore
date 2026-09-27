@@ -18,3 +18,7 @@ __pycache__/
 # Raw design exports (~117 MB). Only needed to regenerate /assets via tools/build_assets.py —
 # keep them locally or in shared storage rather than in the site repo.
 References/
+
+# Unity WebGL build output. The data file is ~160 MB: over GitHub's 100 MB file limit and
+# Vercel Hobby's 100 MB upload limit, so the build is hosted separately (see README → Browser version).
+play/Build/

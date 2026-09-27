@@ -29,7 +29,7 @@ const STORY_VIDEO = "";
 // the "Coming soon" badges disappear and the buttons read "Play now".
 const PLAY = {
   url: "/play/",
-  live: false,
+  live: true,
 };
 
 // Gameplay carousel. Each item: { src, srcset?, alt } for images,
