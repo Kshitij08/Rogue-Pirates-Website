@@ -191,6 +191,19 @@ const MAX_STAT = 6;
   /* ---- promo video: themed controls ---- */
   const player = $(".player");
   const promo = $("#promo");
+  if (promo && promo.dataset.poster) {
+    const setPoster = () => { promo.poster = promo.dataset.poster; };
+    // wait for the hero to finish loading, then fetch the poster once the story is near
+    const afterLoad = (fn) => (document.readyState === "complete" ? fn() : window.addEventListener("load", fn, { once: true }));
+    if ("IntersectionObserver" in window) {
+      const posterIO = new IntersectionObserver(([en]) => {
+        if (en.isIntersecting) { posterIO.disconnect(); afterLoad(setPoster); }
+      }, { rootMargin: "100% 0px" });
+      posterIO.observe(promo);
+    } else {
+      setPoster();
+    }
+  }
   if (player && promo && !STORY_VIDEO) {
     const playBtn = $(".play-btn", player);
     const bar = $(".player__bar", player);
@@ -341,7 +354,7 @@ const MAX_STAT = 6;
     b.setAttribute("aria-selected", "false");
     b.tabIndex = -1;
     b.dataset.key = c.key;
-    b.innerHTML = `<img src="${img(c.key, "portrait")}" width="300" height="300" alt="${c.name}">`;
+    b.innerHTML = `<img src="${img(c.key, "portrait")}" width="300" height="300" alt="${c.name}" loading="lazy">`;
     b.addEventListener("click", () => select(c.key));
     list.append(b);
     return b;
@@ -481,12 +494,24 @@ const MAX_STAT = 6;
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitName);
   window.addEventListener("resize", fitName);
 
-  // Warm the cache so switching captains is instant.
-  const warm = () => CAPTAINS.forEach((c) => {
-    ["character", "cannon", "shield", "ship", "wheel", "up", "down", "emblem"].forEach((p) => { new Image().src = img(c.key, p); });
-  });
-  if ("requestIdleCallback" in window) requestIdleCallback(warm, { timeout: 4000 });
-  else setTimeout(warm, 2500);
+  // Warm the cache so switching captains is instant — but only once the visitor is
+  // approaching the Captains section, so it never competes with the hero on first load.
+  let warmed = false;
+  const warm = () => {
+    if (warmed) return;
+    warmed = true;
+    CAPTAINS.forEach((c) => {
+      ["character", "cannon", "shield", "ship", "wheel", "up", "down", "emblem"].forEach((p) => { new Image().src = img(c.key, p); });
+    });
+  };
+  if ("IntersectionObserver" in window) {
+    const warmIO = new IntersectionObserver(([en]) => {
+      if (en.isIntersecting) { warmIO.disconnect(); warm(); }
+    }, { rootMargin: "50% 0px" });
+    warmIO.observe(panel);
+  } else {
+    window.addEventListener("load", () => setTimeout(warm, 1500));
+  }
 
   /* ---- top bar + section dots ---- */
   const nav = $("#nav");

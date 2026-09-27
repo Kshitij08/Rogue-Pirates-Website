@@ -95,6 +95,7 @@ def hero():
 def ui():
     print("ui")
     save(Image.open(find(WEB, "scroll png")), "story-scroll.webp", width=2600, trim=True)
+    save(Image.open(find(WEB, "scroll png")), "story-scroll-1300.webp", width=1300, trim=True)
     save(Image.open(find(WEB, "scroll 4")), "banner-scroll.webp", width=900)
     save(Image.open(find(WEB, "profile bg 2")), "banner-plank.webp", width=900)
     save(Image.open(find(WEB, "button yellow")), "button-yellow.webp", width=700)
@@ -261,6 +262,19 @@ def play_title():
     img = img.crop(img.getchannel("A").getbbox())
     print(f"    native size {img.size} (Launching soon on is {launching.size})")
     save(img, "title-play-in-browser.webp", width=700, quality=90)
+
+
+def lqip():
+    """Print tiny blurred placeholders of the page backgrounds. Paste them into the
+    `.page` background-image rules in assets/css/style.css (second layer, under the real image)."""
+    import base64, io
+    print("lqip")
+    for name, w in (("full-2400", 24), ("mobile-1300", 10)):
+        im = Image.open(OUT / "bg" / f"{name}.webp").convert("RGB")
+        im = im.resize((w, round(im.height * w / im.width)), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, "WEBP", quality=45)
+        print(f"  {name}: data:image/webp;base64,{base64.b64encode(buf.getvalue()).decode()}")
 
 
 def meta():

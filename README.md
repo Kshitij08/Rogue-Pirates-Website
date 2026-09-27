@@ -9,6 +9,7 @@ index.html              page markup
 assets/css/style.css    all styles (full-screen desktop layout + single-column mobile layout)
 assets/js/main.js       content config + captain picker, carousel, video player, nav
 assets/img/             optimised WebP images (generated, see below)
+assets/fonts/           Cinzel (headings) + Alegreya (body copy), SIL OFL, self-hosted
 assets/icons/           favicons
 assets/og-image.jpg     social share preview
 assets/video/           promo video (1080p + 720p for phones) and poster
