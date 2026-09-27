@@ -2,7 +2,7 @@
 
 A static landing page (HTML, CSS and vanilla JS) with no build step and no dependencies.
 
-The page is five full-screen sections (Hero, Our Story, Captains, Gameplay, Launch) that snap into place as you scroll. On desktop each section is scaled to fit the screen. Phones and portrait tablets get a single-column layout.
+The page is six full-screen sections (Hero, Our Story, Captains, Gameplay, Play in Browser, Launch) that snap into place as you scroll. On desktop each section is scaled to fit the screen. Phones and portrait tablets get a single-column layout.
 
 ```
 index.html              page markup
@@ -12,7 +12,9 @@ assets/img/             optimised WebP images (generated, see below)
 assets/icons/           favicons
 assets/og-image.jpg     social share preview
 assets/video/           promo video (1080p + 720p for phones) and poster
+play/                   browser version (placeholder until the Unity WebGL build lands)
 tools/build_assets.py   regenerates assets/img from /References (References/ is git-ignored)
+tools/fonts/            Alegreya (SIL OFL), used to render the "Play in Browser" title
 vercel.json             cache + security headers
 ```
 
@@ -25,6 +27,7 @@ Everything you're likely to change is in the **CONFIG** block at the top of `ass
 | X / Instagram / Discord links (Discord is also used by **Join us**) | `LINKS` |
 | Seeker / App Store / Steam / Google Play links | `STORES` |
 | "Our Story" video: the promo in `assets/video/` is used by default. Set this only to switch to a YouTube/Vimeo embed | `STORY_VIDEO` |
+| Browser version URL, and whether it's live (hides the "Coming soon" badges and switches buttons to "Play now") | `PLAY` |
 | Gameplay carousel images or videos | `GAMEPLAY_MEDIA` |
 | Captain names, stats (0–6), special abilities, ability icons | `CAPTAINS` |
 
@@ -45,6 +48,16 @@ ffmpeg -i "References/Rogue Pirates Promo.mp4" -vf scale=-2:720 -c:v libx264 -pr
 While a link is empty, clicking it shows a "coming soon" toast.
 
 You can link straight to a captain with `/?captain=roxie`.
+
+## Browser version (Unity WebGL)
+
+`/play/` currently shows a "coming soon" page. To ship the game:
+
+1. Build the game in Unity for WebGL.
+2. Replace the contents of `play/` with the build output (`index.html`, `Build/`, `TemplateData/`).
+3. Set `PLAY.live = true` in `assets/js/main.js`.
+
+`vercel.json` already sends the correct `Content-Encoding` and `Content-Type` headers for Brotli (`.br`) and Gzip (`.gz`) Unity builds. It also redirects `/play` to `/play/` so the build's relative paths resolve.
 
 ## Run locally
 

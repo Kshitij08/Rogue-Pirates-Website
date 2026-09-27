@@ -25,10 +25,32 @@ const STORES = {
 // e.g. "https://www.youtube.com/embed/VIDEO_ID". Leave "" to keep the local video.
 const STORY_VIDEO = "";
 
-// Gameplay carousel. Each item: { src: "/assets/img/gameplay/01.webp", alt: "…" }
-// or { video: "/assets/video/clip.mp4", poster: "…" } or { embed: "https://www.youtube.com/embed/…" }.
-// While empty, PLACEHOLDER_SLIDES dark cards are shown (as in the design).
-const GAMEPLAY_MEDIA = [];
+// Browser version (Unity WebGL build served from /play/). Flip `live` to true when the build is up:
+// the "Coming soon" badges disappear and the buttons read "Play now".
+const PLAY = {
+  url: "/play/",
+  live: false,
+};
+
+// Gameplay carousel. Each item: { src, srcset?, alt } for images,
+// { video: "/assets/video/clip.mp4", poster: "…" } or { embed: "https://www.youtube.com/embed/…" }.
+// While empty, PLACEHOLDER_SLIDES dark cards are shown.
+const shot = (n, alt, w = 1600) => ({
+  src: `/assets/img/gameplay/${n}-1600.webp`,
+  srcset: `/assets/img/gameplay/${n}-800.webp 800w, /assets/img/gameplay/${n}-1600.webp ${w}w`,
+  alt,
+});
+const GAMEPLAY_MEDIA = [
+  shot("01", "Rook's ship blasts a ring of fire through an enemy fleet"),
+  shot("02", "Critical hits land on a giant red sea beast near the islands", 1280),
+  shot("03", "A PvP duel between two pirate ships on a blood-red sea"),
+  shot("04", "A laser beam sweeps across a green sea full of loot"),
+  shot("05", "Captain Richie fights a sea monster among palm-covered islands"),
+  shot("06", "Sailing past islands while dodging a swarm of enemy boats", 1280),
+  shot("07", "Lightning and cannon fire light up a coastal battle", 1280),
+  shot("08", "Fire and cannonballs fly in a night battle on a red sea"),
+  shot("09", "Racing rival ships across an emerald sea"),
+];
 const PLACEHOLDER_SLIDES = 6;
 
 // Captains, in the order they appear in the picker.
@@ -122,8 +144,16 @@ const MAX_STAT = 6;
     const a = e.target.closest("a");
     if (!a || a.getAttribute("href") !== "#") return;
     e.preventDefault();
-    showToast(a.classList.contains("store") ? "Coming soon — stay tuned, matey!" : "Our port opens soon — stay tuned!");
+    showToast(a.dataset.store ? "Coming soon — stay tuned, matey!" : "Our port opens soon — stay tuned!");
   });
+
+  /* ---- browser version ---- */
+  $$("[data-play]").forEach((a) => { a.href = PLAY.url; });
+  if (PLAY.live) {
+    $$("[data-play-soon]").forEach((el) => el.remove());
+    $$("[data-play-label]").forEach((el) => { el.textContent = "Play now"; });
+    $$(".platform--web").forEach((a) => a.setAttribute("aria-label", "Play in your web browser"));
+  }
 
   /* ---- media helper ---- */
   function fillMedia(slot, item, title) {
@@ -145,6 +175,10 @@ const MAX_STAT = 6;
     } else if (item.src) {
       const i = document.createElement("img");
       Object.assign(i, { src: item.src, alt: item.alt || title, loading: "lazy", decoding: "async" });
+      if (item.srcset) {
+        i.srcset = item.srcset;
+        i.sizes = "(max-width: 899px) 90vw, 46vw";
+      }
       slot.append(i);
     }
   }

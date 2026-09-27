@@ -103,10 +103,6 @@ def ui():
         save(Image.open(find(WEB, title)), f"title-{slug}.webp", width=700, quality=90)
     save(Image.open(find(WEB, "arrow button 5")), "arrow-left.webp", width=160, trim=True)
     save(Image.open(find(WEB, "arrow button 4")), "arrow-right.webp", width=160, trim=True)
-    save(Image.open(find(WEB, "seeker")), "store-seeker.webp", width=640, quality=88)
-    save(Image.open(find(WEB, "apple-store")), "store-apple.webp", width=640, quality=88, trim=True)
-    save(Image.open(find(WEB, "steam")), "store-steam.webp", width=640, quality=88)
-    save(Image.open(find(WEB, "google_play")), "store-google.webp", width=640, quality=88)
     save(Image.open(find(WEB, "new-twitter")), "social-x.webp", width=240, quality=88, trim=True)
     save(Image.open(find(WEB, "instagram")), "social-instagram.webp", width=240, quality=88, trim=True)
     save(Image.open(find(WEB, "discord")), "social-discord.webp", width=240, quality=88, trim=True)
@@ -189,6 +185,84 @@ def captains():
 
 
 
+GAMEPLAY = ROOT / "References" / "Gameplay Screenshots"
+FONTS = Path(__file__).resolve().parent / "fonts"
+
+# Gameplay carousel order (file name in References/Gameplay Screenshots, alt text).
+GAMEPLAY_SHOTS = [
+    ("bdjmv.png", "Rook's ship blasts a ring of fire through an enemy fleet"),
+    ("dadadada.jpg", "Critical hits land on a giant red sea beast near the islands"),
+    ("dhvb.png", "A PvP duel between two pirate ships on a blood-red sea"),
+    ("djhvb.png", "A laser beam sweeps across a green sea full of loot"),
+    ("jhjb.png", "Captain Richie fights a sea monster among palm-covered islands"),
+    ("afssgsf.jpg", "Sailing past islands while dodging a swarm of enemy boats"),
+    ("dadwd.jpg", "Lightning and cannon fire light up a coastal battle"),
+    ("hb .png", "Fire and cannonballs fly in a night battle on a red sea"),
+    ("jhjefb.png", "Racing rival ships across an emerald sea"),
+]
+
+
+def gameplay():
+    print("gameplay")
+    for i, (name, _alt) in enumerate(GAMEPLAY_SHOTS, 1):
+        im = Image.open(GAMEPLAY / name).convert("RGB")
+        save(im, f"gameplay/{i:02d}-1600.webp", width=1600, quality=80)
+        save(im, f"gameplay/{i:02d}-800.webp", width=800, quality=78)
+
+
+def _white_icon(img: Image.Image, box, mode="lum") -> Image.Image:
+    """Cut a logo out of a store badge as a white silhouette (used as a CSS mask)."""
+    c = np.array(img.convert("RGB").crop(box)).astype(float)
+    a = c.mean(-1) / 255 if mode == "lum" else np.clip(c.max(-1) / 255 * 1.4, 0, 1)
+    a = np.clip((a - 0.12) / 0.8, 0, 1)
+    out = np.zeros((*a.shape, 4), np.uint8)
+    out[..., :3] = 255
+    out[..., 3] = (a * 255).astype(np.uint8)
+    o = Image.fromarray(out)
+    return o.crop(o.getchannel("A").getbbox())
+
+
+def platforms():
+    """Monochrome platform icons so the 'Launching soon on' row reads as one set."""
+    print("platforms")
+    apple = Image.open(find(WEB, "apple-store")).convert("RGBA")
+    apple = apple.crop(apple.getchannel("A").getbbox())
+    save(_white_icon(apple, (115, 51, 326, 307)), "platforms/apple.png", width=160)
+    steam = Image.open(find(WEB, "steam"))
+    save(_white_icon(steam, (189, 42, 471, 324)), "platforms/steam.png", width=160)
+    google = Image.open(find(WEB, "google_play"))
+    save(_white_icon(google, (87, 62, 306, 305), mode="any"), "platforms/google-play.png", width=160)
+
+
+def play_title():
+    """Render the 'Play in Browser' banner title in Alegreya ExtraBold to match the other titles."""
+    from PIL import ImageFont
+    print("play title")
+    ref = Image.open(find(WEB, "Captains")).convert("RGBA")
+    px = np.array(ref).reshape(-1, 4)
+    colour = tuple(int(v) for v in np.median(px[px[:, 3] > 250][:, :3], 0))
+
+    def font(size):
+        f = ImageFont.truetype(str(FONTS / "Alegreya-Variable.ttf"), size)
+        f.set_variation_by_axes([800])
+        return f
+
+    # size the font so "Captains" comes out as tall as the exported Captains title
+    probe = font(200).getbbox("Captains")
+    size = round(200 * ref.height / (probe[3] - probe[1]))
+    # "Launching soon on" is drawn smaller than the one-word titles; match that scale for a long title
+    launching = Image.open(find(WEB, "Launching soon on"))
+    size = round(size * 0.66)
+    f = font(size)
+    text = "Play in Browser"
+    l, t, r, b = f.getbbox(text)
+    img = Image.new("RGBA", (r - l + 8, b - t + 8), (0, 0, 0, 0))
+    ImageDraw.Draw(img).text((4 - l, 4 - t), text, font=f, fill=colour + (255,))
+    img = img.crop(img.getchannel("A").getbbox())
+    print(f"    native size {img.size} (Launching soon on is {launching.size})")
+    save(img, "title-play-in-browser.webp", width=700, quality=90)
+
+
 def meta():
     print("meta")
     logo = Image.open(find(WEB, "rogue_pirates_logo")).convert("RGBA")
@@ -231,5 +305,8 @@ if __name__ == "__main__":
     ui()
     portraits()
     captains()
+    gameplay()
+    platforms()
+    play_title()
     meta()
     print("done")

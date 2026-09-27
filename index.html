@@ -52,6 +52,7 @@
       <a href="#story" data-nav="story">Story</a>
       <a href="#captains" data-nav="captains">Captains</a>
       <a href="#gameplay" data-nav="gameplay">Gameplay</a>
+      <a href="#play" data-nav="play">Play</a>
       <a href="#launch" data-nav="launch">Launch</a>
     </nav>
     <a class="nav__cta" href="#" data-link="discord" target="_blank" rel="noopener">
@@ -66,6 +67,7 @@
     <a href="#story" data-nav="story"><span>Our Story</span></a>
     <a href="#captains" data-nav="captains"><span>Captains</span></a>
     <a href="#gameplay" data-nav="gameplay"><span>Gameplay</span></a>
+    <a href="#play" data-nav="play"><span>Play in Browser</span></a>
     <a href="#launch" data-nav="launch"><span>Launch</span></a>
   </nav>
 
@@ -194,6 +196,33 @@
       </div>
     </section>
 
+    <!-- ============ PLAY IN BROWSER ============ -->
+    <section class="sec play" id="play" aria-labelledby="play-title">
+      <div class="stage">
+        <h2 class="banner banner--plank reveal" id="play-title" style="--tw: 9.26rem">
+          <img src="/assets/img/title-play-in-browser.webp" width="700" height="105" alt="Play in Browser">
+        </h2>
+        <div class="play-card reveal">
+          <img class="play-card__art" src="/assets/img/gameplay/05-1600.webp"
+               srcset="/assets/img/gameplay/05-800.webp 800w, /assets/img/gameplay/05-1600.webp 1600w"
+               sizes="(max-width: 899px) 90vw, 46vw" width="1600" height="900" alt="" loading="lazy">
+          <div class="play-card__body">
+            <span class="play-card__badge" data-play-soon>Coming soon</span>
+            <h3 class="play-card__title">Set sail right in your browser</h3>
+            <p class="play-card__text">No downloads, no installs. Pick a captain and take to the open sea from any device.</p>
+            <a class="btn-gold" href="/play/" data-play>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+              <span data-play-label>Play in browser</span>
+            </a>
+            <p class="play-card__note" data-play-soon>Want to know the moment it's live? <a href="#" data-link="discord" target="_blank" rel="noopener">Join our Discord</a></p>
+          </div>
+          <a class="play-card__launch" href="/play/" data-play aria-label="Play Rogue Pirates in your browser">
+            <svg viewBox="0 0 100 100" aria-hidden="true"><path d="M38 28 L74 50 L38 72 Z"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ LAUNCH / FOOTER ============ -->
     <footer class="sec launch" id="launch">
       <div class="stage">
@@ -201,12 +230,38 @@
           <img src="/assets/img/title-launching-soon-on.webp" width="700" height="77" alt="Launching soon on">
         </h2>
 
-        <ul class="stores reveal">
-          <!-- Store links live in STORES (assets/js/main.js). -->
-          <li><a class="store" href="#" data-store="seeker" aria-label="Solana Seeker (coming soon)"><img src="/assets/img/store-seeker.webp" width="640" height="214" alt="Seeker — Solana Mobile" loading="lazy"></a></li>
-          <li><a class="store" href="#" data-store="apple" aria-label="Download on the App Store (coming soon)"><img src="/assets/img/store-apple.webp" width="640" height="186" alt="Download on the App Store" loading="lazy"></a></li>
-          <li><a class="store" href="#" data-store="steam" aria-label="Steam (coming soon)"><img src="/assets/img/store-steam.webp" width="640" height="185" alt="Steam" loading="lazy"></a></li>
-          <li><a class="store" href="#" data-store="google" aria-label="Get it on Google Play (coming soon)"><img src="/assets/img/store-google.webp" width="640" height="190" alt="Get it on Google Play" loading="lazy"></a></li>
+        <!-- One matching tile per platform. Store links live in STORES (assets/js/main.js). -->
+        <ul class="platforms reveal">
+          <li>
+            <a class="platform platform--web" href="/play/" data-play aria-label="Play in your web browser (coming soon)">
+              <span class="platform__icon"><svg viewBox="0 0 24 24" aria-hidden="true" class="i-stroke"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></span>
+              <span class="platform__text"><small>Any device</small>Web Browser</span>
+            </a>
+          </li>
+          <li>
+            <a class="platform" href="#" data-store="seeker" aria-label="Solana Seeker (coming soon)">
+              <span class="platform__icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.2 4.5H22l-3.2 3.4H3z M3 10.3h15.8l3.2 3.4H6.2z M6.2 16.1H22l-3.2 3.4H3z"/></svg></span>
+              <span class="platform__text"><small>Solana Mobile</small>Seeker</span>
+            </a>
+          </li>
+          <li>
+            <a class="platform" href="#" data-store="apple" aria-label="App Store (coming soon)">
+              <span class="platform__icon platform__icon--mask" style="--icon: url(/assets/img/platforms/apple.png)"></span>
+              <span class="platform__text"><small>iPhone &amp; iPad</small>App Store</span>
+            </a>
+          </li>
+          <li>
+            <a class="platform" href="#" data-store="steam" aria-label="Steam (coming soon)">
+              <span class="platform__icon platform__icon--mask" style="--icon: url(/assets/img/platforms/steam.png)"></span>
+              <span class="platform__text"><small>PC</small>Steam</span>
+            </a>
+          </li>
+          <li>
+            <a class="platform" href="#" data-store="google" aria-label="Google Play (coming soon)">
+              <span class="platform__icon platform__icon--mask" style="--icon: url(/assets/img/platforms/google-play.png)"></span>
+              <span class="platform__text"><small>Android</small>Google Play</span>
+            </a>
+          </li>
         </ul>
 
         <a class="join reveal" href="#" data-link="discord" target="_blank" rel="noopener">
