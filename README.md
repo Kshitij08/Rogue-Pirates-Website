@@ -81,7 +81,7 @@ R2 doesn't charge for bandwidth, which matters because every player downloads th
 
 For each build:
 
-1. **Upload it.** Run `node tools/upload-game-build.mjs "References/V4WebGLDemo/Build" roguepirates-game v4`, bumping `v4` to a new version name for every build. The script sets the correct `Content-Type` and `Content-Encoding` on each file, and marks them cacheable for a year.
+1. **Upload it.** Run `node tools/upload-game-build.mjs "References/WebGL/Build" <your-bucket> Build`, bumping `v4` to a new version name for every build. The script sets the correct `Content-Type` and `Content-Encoding` on each file, and marks them cacheable for a year.
 2. **Point the page at it.** Set `GAME_CDN` in `play/index.html` to `https://rogue-pirates.x2c.fun/<folder>`. Update `BUILD.name` and `BUILD.downloadMB` if they changed, then deploy the site.
 3. **Turn on the Play buttons.** The first time, set `PLAY.live = true` in `assets/js/main.js`. That switches the homepage buttons from "Coming soon" to "Play now".
 

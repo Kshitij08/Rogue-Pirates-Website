@@ -5,9 +5,9 @@
  * Usage (from the repo root):
  *   node tools/upload-game-build.mjs <build-folder> <bucket> <version>
  * e.g.
- *   node tools/upload-game-build.mjs "References/V4WebGLDemo/Build" roguepirates-game v4
+ *   node tools/upload-game-build.mjs "References/WebGL/Build" <your-bucket> Build
  *
- * Files land at <bucket>/<version>/<file>, e.g. roguepirates-game/v4/V4WebGLDemo.data.unityweb,
+ * Files land at <bucket>/<version>/<file>, e.g. <your-bucket>/Build/WebGL.data.unityweb,
  * which the site loads from https://rogue-pirates.x2c.fun/<version>/… (GAME_CDN in play/index.html).
  *
  * Every upload goes to a new <version> folder, so files can be cached "forever" (immutable).
