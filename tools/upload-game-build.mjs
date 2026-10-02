@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 /**
- * Upload a Unity WebGL build to Cloudflare R2 with the headers browsers need.
+ * Upload a Unity WebGL build (or the Android APK) to Cloudflare R2 with the headers browsers need.
  *
  * Usage (from the repo root):
  *   node tools/upload-game-build.mjs <build-folder> <bucket> <version>
- * e.g.
- *   node tools/upload-game-build.mjs "References/WebGL/Build" <your-bucket> Build
+ * e.g. for the 2026-10-02 release (folders staged in References/Release-2026-10-02/r2-upload):
+ *   node tools/upload-game-build.mjs "<staged>/2026-10-02/desktop/Build" <your-bucket> 2026-10-02/desktop/Build
+ *   node tools/upload-game-build.mjs "<staged>/2026-10-02/mobile/Build"  <your-bucket> 2026-10-02/mobile/Build
+ *   node tools/upload-game-build.mjs "<staged>/2026-10-02/android"       <your-bucket> 2026-10-02/android
  *
  * Files land at <bucket>/<version>/<file>, e.g. <your-bucket>/Build/WebGL.data.unityweb,
  * which the site loads from https://rogue-pirates.x2c.fun/<version>/… (GAME_CDN in play/index.html).
@@ -28,7 +30,8 @@ if (!dir || !bucket || !version) {
 function meta(name) {
   const enc = name.endsWith(".unityweb") || name.endsWith(".br") ? "br" : name.endsWith(".gz") ? "gzip" : null;
   const base = name.replace(/\.(unityweb|br|gz)$/, "");
-  const type = base.endsWith(".wasm") ? "application/wasm"
+  const type = base.endsWith(".apk") ? "application/vnd.android.package-archive"
+    : base.endsWith(".wasm") ? "application/wasm"
     : base.endsWith(".js") ? "application/javascript"
     : base.endsWith(".json") ? "application/json"
     : "application/octet-stream";
@@ -53,6 +56,7 @@ for (const name of files) {
     "--remote",
   ];
   if (enc) args.push("--content-encoding", enc);
+  if (name.endsWith(".apk")) args.push("--content-disposition", `attachment; filename="${name}"`);
   console.log(`\n↑ ${name}  (${size} MB, ${type}${enc ? `, ${enc}` : ""})`);
   const r = spawnSync("npx", args, { stdio: "inherit", shell: process.platform === "win32" });
   if (r.status !== 0) failed++;

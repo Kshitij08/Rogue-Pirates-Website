@@ -55,9 +55,9 @@ You can link straight to a captain with `/?captain=roxie`.
 
 `/play/` is a branded player page for the Unity WebGL build. It has a start screen that shows the download size, a progress bar, a fullscreen button, a warning on phones and error handling.
 
-- **Build location:** the build files go in a folder set by `BUILD.url` at the bottom of `play/index.html`. Locally that's the git-ignored `play/Build/` folder; on the live site it's `GAME_CDN` (`https://rogue-pirates.x2c.fun/Build`). Add `?cdn` to test the live bucket from localhost.
-- **Kept out of git:** `play/Build/` is in `.gitignore`. The current data file is about 160 MB, which is over GitHub's 100 MB per-file limit and Vercel Hobby's 100 MB upload limit.
-- **Compression headers:** the build is Brotli-compressed with *Decompression Fallback*, so the files end in `.unityweb`. Serve them with `Content-Encoding: br` and the right `Content-Type` so the browser decompresses them natively. That makes loading about 2.5× faster than the JavaScript fallback. `vercel.json` already sets these headers for `/play/Build/`, and a CDN needs the same metadata on each file:
+- **Build location:** the builds live in a release folder on Cloudflare R2 (`GAME_CDN` + `RELEASE` at the bottom of `play/index.html`, currently `https://rogue-pirates.x2c.fun/2026-10-02`). Locally the page uses the git-ignored `play/local/` copies; add `?cdn` to load from the live bucket instead.
+- **Kept out of git:** `play/local/` and `play/Build/` are in `.gitignore`. The builds are 88–127 MB per file, which is too big for GitHub (100 MB per file) and Vercel Hobby (100 MB per upload), so they're hosted on R2.
+- **Compression headers:** the build is Brotli-compressed with *Decompression Fallback*, so the files end in `.unityweb`. Serve them with `Content-Encoding: br` and the right `Content-Type` so the browser decompresses them natively. That makes loading about 2.5× faster than the JavaScript fallback. A CDN needs this metadata on each file (`tools/upload-game-build.mjs` sets it; `vercel.json` has the same rules in case a build is ever served from `/play/Build/`):
 
   | File | Content-Type | Content-Encoding |
   | --- | --- | --- |
@@ -68,7 +68,7 @@ You can link straight to a captain with `/?captain=roxie`.
 
 - **CORS:** if the build is on another domain, allow `GET` from `https://roguepirates.fun` and `https://www.roguepirates.fun` in that bucket's CORS settings.
 - **Updating the build:** copy the new files into the build folder and update `BUILD.name` (the file prefix) and `BUILD.downloadMB` in `play/index.html`.
-- **Test locally:** copy the build into `play/Build/` and open http://localhost:5173/play/. Add `?autostart` to skip the start screen.
+- **Test locally:** open http://localhost:5173/play/ (uses `play/local/`). Add `?autostart` to skip the start screen and `?cdn` to load from the live bucket.
 
 ### Hosting the build on Cloudflare R2
 
@@ -79,11 +79,21 @@ R2 doesn't charge for bandwidth, which matters because every player downloads th
 3. **Allow the site to load files from the bucket.** Run `npx wrangler r2 bucket cors set roguepirates-game --file tools/r2-cors.json`.
 4. **Connect the subdomain.** In the dashboard, go to R2 → your bucket → Settings → Custom Domains and connect the game subdomain (currently `rogue-pirates.x2c.fun`). The `r2.dev` URL works for quick tests, but Cloudflare rate-limits it, so it isn't meant for real traffic.
 
-For each build:
+For each release, everything goes in one dated folder in the bucket:
 
-1. **Upload it.** Run `node tools/upload-game-build.mjs "References/WebGL/Build" <your-bucket> Build`, bumping `v4` to a new version name for every build. The script sets the correct `Content-Type` and `Content-Encoding` on each file, and marks them cacheable for a year.
-2. **Point the page at it.** Set `GAME_CDN` in `play/index.html` to `https://rogue-pirates.x2c.fun/<folder>`. Update `BUILD.name` and `BUILD.downloadMB` if they changed, then deploy the site.
-3. **Turn on the Play buttons.** The first time, set `PLAY.live = true` in `assets/js/main.js`. That switches the homepage buttons from "Coming soon" to "Play now".
+```
+<RELEASE>/desktop/Build/RoguePirates.*      computers (DXT textures)
+<RELEASE>/mobile/Build/RoguePirates.*       phones & tablets (ASTC textures)
+<RELEASE>/android/RoguePirates-Android.apk  Android app
+```
+
+1. **Upload.** Upload each folder, either through the dashboard or with `node tools/upload-game-build.mjs <folder> <bucket> <RELEASE>/desktop/Build` (and likewise for `mobile/Build` and `android`). The script also sets the compression headers, so loading is faster, and gives the APK its download headers.
+2. **Point the site at it.** In `play/index.html`, set `RELEASE` to the folder name, and update `BUILDS[…].downloadMB` and `ANDROID_APK.sizeMB` if they changed. In `assets/js/main.js`, update `ANDROID_APP.url` and `ANDROID_APP.sizeMB`.
+3. **Deploy.** Deploy the site only *after* the upload, so `/play/` never points at missing files.
+
+The player page picks the build automatically: phones and tablets get `mobile`, everything else gets `desktop`. Players can switch with the link on the start screen. For testing, `?build=mobile` or `?build=desktop` forces one. On Android, the start screen also offers the APK.
+
+For local testing, put copies under `play/local/<RELEASE>/…`, which is git-ignored.
 
 ## Run locally
 

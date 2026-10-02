@@ -32,6 +32,13 @@ const PLAY = {
   live: true,
 };
 
+// Android playtest app, hosted on Cloudflare R2 next to the browser builds.
+// Set `url` to "" to hide the "Get the app" link.
+const ANDROID_APP = {
+  url: "https://rogue-pirates.x2c.fun/2026-10-02/android/RoguePirates-Android.apk",
+  sizeMB: 127,
+};
+
 // Gameplay carousel. Each item: { src, srcset?, alt } for images,
 // { video: "/assets/video/clip.mp4", poster: "…" } or { embed: "https://www.youtube.com/embed/…" }.
 // While empty, PLACEHOLDER_SLIDES dark cards are shown.
@@ -153,6 +160,11 @@ const MAX_STAT = 6;
     $$("[data-play-soon]").forEach((el) => el.remove());
     $$("[data-play-label]").forEach((el) => { el.textContent = "Play now"; });
     $$(".platform--web").forEach((a) => a.setAttribute("aria-label", "Play in your web browser"));
+  }
+  if (ANDROID_APP.url) {
+    $$("[data-apk]").forEach((a) => { a.href = ANDROID_APP.url; });
+    $$("[data-apk-size]").forEach((el) => { el.textContent = `${ANDROID_APP.sizeMB}\u00a0MB`; });
+    $$("[data-android]").forEach((el) => { el.hidden = false; });
   }
 
   /* ---- media helper ---- */
