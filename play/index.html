@@ -200,28 +200,7 @@
       .stage { padding: 0; }
       .frame { width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
     }
-    .overlay { overflow-y: auto; }
-    .overlay--rotate { background: rgb(2 10 24 / .94); z-index: 3; }
-    .phone-turn { width: 64px; height: 64px; animation: turn 2.4s ease-in-out infinite; transform-origin: 50% 45%; }
-    @keyframes turn { 0%, 25% { transform: rotate(0); } 55%, 100% { transform: rotate(-90deg); } }
-
-    /* short screens (phones in landscape): slim bar, icon-only buttons, tighter start screen */
-    @media (max-height: 500px) {
-      :root { --bar-h: 40px; }
-      .bar__brand img { height: 26px; }
-      .chip { height: 30px; padding: 0 9px; }
-      .chip__label { display: none; }
-      .overlay { padding: 12px 20px; }
-      .panel { gap: 8px; max-width: 560px; }
-      .panel .badge { display: none; }
-      .panel h1, .panel h2 { font-size: 20px; }
-      .panel p { font-size: 14px; line-height: 1.4; }
-      .panel .fine { font-size: 12.5px; }
-      .notice { padding: 6px 10px; font-size: 13.5px; }
-      .btn { height: 42px; margin-top: 2px; }
-      .wheel { width: 40px; height: 40px; }
-    }
-    @media (prefers-reduced-motion: reduce) { .wheel, .phone-turn { animation: none; } }
+    @media (prefers-reduced-motion: reduce) { .wheel { animation: none; } }
   </style>
 </head>
 <body>
@@ -229,13 +208,13 @@
     <a class="bar__brand" href="/" aria-label="Rogue Pirates home"><img src="/assets/img/logo-800.webp" width="800" height="404" alt=""></a>
     <span class="bar__title">Browser demo</span>
     <span class="bar__spacer"></span>
-    <button class="chip" id="fullscreen" type="button" aria-label="Full screen" hidden>
+    <button class="chip" id="fullscreen" type="button" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
-      <span class="chip__label">Full screen</span>
+      Full screen
     </button>
-    <a class="chip" href="/" aria-label="Back to site">
+    <a class="chip" href="/">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-      <span class="chip__label">Back to site</span>
+      Back to site
     </a>
   </header>
 
@@ -248,14 +227,13 @@
         <div class="panel">
           <span class="badge">Browser demo</span>
           <h1>Ready to set sail?</h1>
-          <p>Pick a captain and take to the open sea. The first load is a one-time download of about <strong id="size">111&nbsp;MB</strong>; your browser keeps it for next time.</p>
-          <p class="notice" id="mobile-notice" hidden>You're getting the phone version. It runs best on a recent phone, and Wi-Fi is recommended for the first download.</p>
+          <p>Pick a captain and take to the open sea. The first load is a one-time download of about <strong id="size">184&nbsp;MB</strong>; your browser keeps it for next time.</p>
+          <p class="notice" id="mobile-notice" hidden>Heads up: this demo is built for computers. On a phone it's a big download and may not run smoothly.</p>
           <button class="btn" id="start-btn" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
             <span id="start-label">Set sail</span>
           </button>
-          <p class="fine" id="android-app" hidden>Prefer an app? <a id="apk-link" href="#" download>Download the Android version</a> (<span id="apk-size">127&nbsp;MB</span> playtest build).</p>
-          <p class="fine"><span id="device-note">Computer version.</span> <a href="#" id="switch-build">Use the phone version instead</a></p>
+          <p class="fine">Works best in Chrome, Edge, Firefox or Safari on a desktop or laptop.</p>
         </div>
       </div>
 
@@ -275,18 +253,6 @@
         </div>
       </div>
 
-      <!-- rotate (phones in portrait, once the game is running) -->
-      <div class="overlay overlay--rotate" id="rotate" hidden>
-        <div class="panel">
-          <svg class="phone-turn" viewBox="0 0 64 64" aria-hidden="true" fill="none" stroke="#ffd35a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="22" y="8" width="20" height="36" rx="4"/><path d="M29 38h6"/><path d="M14 50a22 22 0 0 0 36 0" /><path d="M46 46l4 4-4 4"/>
-          </svg>
-          <h2>Turn your phone sideways</h2>
-          <p>Rogue Pirates is made for landscape. Rotate your phone for the full view of the high seas.</p>
-          <button class="chip" id="rotate-dismiss" type="button">Keep playing in portrait</button>
-        </div>
-      </div>
-
       <!-- error -->
       <div class="overlay" id="error" hidden>
         <div class="panel">
@@ -302,58 +268,35 @@
 
   <script>
     /* ------------------------------ BUILD ------------------------------
-       Each release lives in its own folder on Cloudflare R2:
-         <GAME_CDN>/<RELEASE>/desktop/Build/…   computers (DXT textures, 1 GB memory)
-         <GAME_CDN>/<RELEASE>/mobile/Build/…    phones & tablets (ASTC textures, 512 MB memory)
-         <GAME_CDN>/<RELEASE>/android/…apk      Android app (playtest)
-       Local testing uses the git-ignored play/local/<RELEASE>/… copies; add ?cdn to
-       test the live bucket from localhost, and ?build=mobile|desktop to force a version.
-       To ship a new release: upload it to a new <RELEASE> folder and update RELEASE
-       (and the sizes / file name below if they changed).                       */
-    var GAME_CDN = "https://rogue-pirates.x2c.fun";
-    var RELEASE = "2026-10-02";
-    var BUILDS = {
-      desktop: { folder: "desktop/Build", downloadMB: 111 },
-      mobile:  { folder: "mobile/Build",  downloadMB: 88 }
-    };
-    var ANDROID_APK = { url: GAME_CDN + "/" + RELEASE + "/android/RoguePirates-Android.apk", sizeMB: 127 };
+       url:  folder that holds the Unity build files. The live site loads them from
+             Cloudflare R2 (uploaded with tools/upload-game-build.mjs); local testing
+             uses the git-ignored play/Build folder.
+       name: the build's file-name prefix (WebGL.loader.js, …).
+       ext:  ".unityweb" when "Decompression Fallback" is on (it is for this build).
+       downloadMB: shown to players before they start.                        */
+    var GAME_CDN = "https://rogue-pirates.x2c.fun/Build";
+    // local testing uses play/Build; add ?cdn to test the live bucket from localhost
+    var useLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]cdn\b/.test(location.search);
     var BUILD = {
-      name: "RoguePirates",            // file-name prefix: RoguePirates.loader.js, …
-      ext: ".unityweb",                // Brotli + Unity's built-in decompressor
+      url: useLocal ? "Build" : GAME_CDN,
+      name: "WebGL",
+      ext: ".unityweb",
+      downloadMB: 184,
       companyName: "DefaultCompany",   // keep in sync with Unity Player Settings —
       productName: "Rogue Pirates",    // they decide where save data lives in the browser
       productVersion: "0.1.0"
     };
-    var useLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]cdn\b/.test(location.search);
-    var RELEASE_ROOT = (useLocal ? "local" : GAME_CDN) + "/" + RELEASE;
 
     (function () {
       var $ = function (id) { return document.getElementById(id); };
       var canvas = $("unity-canvas");
       var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-      var isAndroid = /Android/i.test(navigator.userAgent);
-      var forced = (location.search.match(/[?&]build=(mobile|desktop)\b/) || [])[1];
-      var variant = forced || (isMobile ? "mobile" : "desktop");
 
-      function renderVariant() {
-        var other = variant === "mobile" ? "computer" : "phone";
-        $("size").textContent = BUILDS[variant].downloadMB + "\u00a0MB";
-        $("mobile-notice").hidden = variant !== "mobile";
-        $("device-note").textContent = variant === "mobile" ? "Phone version." : "Computer version.";
-        $("switch-build").textContent = "Use the " + other + " version instead";
-      }
-      $("switch-build").addEventListener("click", function (e) {
-        e.preventDefault();
-        variant = variant === "mobile" ? "desktop" : "mobile";
-        renderVariant();
-      });
-      renderVariant();
-
-      if (isAndroid) {
-        $("apk-link").href = ANDROID_APK.url;
-        $("apk-size").textContent = ANDROID_APK.sizeMB + "\u00a0MB";
-        $("android-app").hidden = false;
+      $("size").textContent = BUILD.downloadMB + " MB";
+      if (isMobile) {
+        $("mobile-notice").hidden = false;
+        $("start-label").textContent = "Play anyway";
       }
 
       function show(id) {
@@ -384,7 +327,7 @@
           return;
         }
         show("loading");
-        var base = RELEASE_ROOT + "/" + BUILDS[variant].folder + "/" + BUILD.name;
+        var base = BUILD.url.replace(/\/$/, "") + "/" + BUILD.name;
         var config = {
           dataUrl: base + ".data" + BUILD.ext,
           frameworkUrl: base + ".framework.js" + BUILD.ext,
@@ -395,7 +338,7 @@
           productVersion: BUILD.productVersion,
           showBanner: function (msg, type) { if (type === "error") fail(msg); else console.warn("[Unity]", msg); }
         };
-        if (variant === "mobile") config.devicePixelRatio = 1; // phones would otherwise render at 3x: memory + heat
+        if (isMobile) config.devicePixelRatio = 1; // keeps phones from rendering at 3x
 
         var script = document.createElement("script");
         script.src = base + ".loader.js";
@@ -417,7 +360,6 @@
             loading.classList.add("is-fading");
             setTimeout(function () { loading.hidden = true; }, 500);
             canvas.focus();
-            watchOrientation();
             var fs = $("fullscreen");
             fs.hidden = false;
             fs.onclick = function () { instance.SetFullscreen(1); };
@@ -428,20 +370,9 @@
         document.body.appendChild(script);
       }
 
-      var rotateDismissed = false;
-      function watchOrientation() {
-        if (variant !== "mobile" || !window.matchMedia) return;
-        var portrait = window.matchMedia("(orientation: portrait)");
-        var update = function () { $("rotate").hidden = rotateDismissed || !portrait.matches; };
-        if (portrait.addEventListener) portrait.addEventListener("change", update);
-        else if (portrait.addListener) portrait.addListener(update);
-        $("rotate-dismiss").addEventListener("click", function () { rotateDismissed = true; update(); canvas.focus(); });
-        update();
-      }
-
       $("start-btn").addEventListener("click", start);
-      // deep link: /play/?autostart skips the start screen
-      if (/[?&]autostart\b/.test(location.search)) start();
+      // deep link: /play/?autostart skips the start screen (desktop only)
+      if (!isMobile && /[?&]autostart\b/.test(location.search)) start();
     })();
   </script>
 </body>
