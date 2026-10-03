@@ -5,6 +5,11 @@
       "source": "/play",
       "destination": "/play/",
       "permanent": false
+    },
+    {
+      "source": "/plays",
+      "destination": "/plays/",
+      "permanent": false
     }
   ],
   "headers": [

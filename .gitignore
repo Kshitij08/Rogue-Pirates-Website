@@ -22,3 +22,5 @@ References/
 # Unity WebGL build output. The data file is ~160 MB: over GitHub's 100 MB file limit and
 # Vercel Hobby's 100 MB upload limit, so the build is hosted separately (see README → Browser version).
 play/Build/
+plays/Build/
+play/local/
