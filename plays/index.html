@@ -228,7 +228,7 @@
         <div class="panel">
           <span class="badge">Latest playtest build</span>
           <h1>Ready to set sail?</h1>
-          <p>Pick a captain and take to the open sea. The first load is a one-time download of about <strong id="size">119&nbsp;MB</strong>; your browser keeps it for next time.</p>
+          <p>Pick a captain and take to the open sea. The first load is a one-time download of about <strong id="size">126&nbsp;MB</strong>; your browser keeps it for next time.</p>
           <p class="notice" id="mobile-notice" hidden>Heads up: this demo is built for computers. On a phone it's a big download and may not run smoothly.</p>
           <button class="btn" id="start-btn" type="button">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
@@ -275,14 +275,14 @@
        name: the build's file-name prefix (WebGL.loader.js, …).
        ext:  ".unityweb" when "Decompression Fallback" is on (it is for this build).
        downloadMB: shown to players before they start.                        */
-    var GAME_CDN = "https://rogue-pirates.x2c.fun/r7/Build";
+    var GAME_CDN = "https://rogue-pirates.x2c.fun/hackathon-20261012/Build";
     // local testing uses play/Build; add ?cdn to test the live bucket from localhost
     var useLocal = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) && !/[?&]cdn\b/.test(location.search);
     var BUILD = {
       url: useLocal ? "Build" : GAME_CDN,
       name: "RoguePirates",
       ext: ".unityweb",
-      downloadMB: 119,
+      downloadMB: 126,
       companyName: "DefaultCompany",   // keep in sync with Unity Player Settings —
       productName: "Rogue Pirates",    // they decide where save data lives in the browser
       productVersion: "0.1.0"
